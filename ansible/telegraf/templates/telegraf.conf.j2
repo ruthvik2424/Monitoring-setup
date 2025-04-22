@@ -71,8 +71,8 @@
 
 [[inputs.ipmi_sensor]]
   path = "/usr/bin/ipmitool"
-  privilege = "ADMINISTRATOR"
-  servers = ["admin:admin123@lanplus(10.232.12.182)"]
+  privilege = "USERNAME"
+  servers = ["ILO_USER:ILO_PASS@lanplus(ILO_IP)"]
   sensors = ["sdr"]
   timeout = "60s"
 
@@ -100,7 +100,7 @@
 ###############################################################################
 
 [[outputs.influxdb_v2]]
-  urls = ["http://10.232.157.111:8086"]
-  token = "uCL2NmKDOE9-JSpoT7qeHk82f3teTbr_wGQADQLsJoCzGiR1CxNs5E0R5nVzvdae-0qJAynAYPj0zxfJ_Xp26Q=="
-  organization = "Krutrim"
-  bucket = "Core Infra"
+  urls = ["http://INFLUXDB_IP:8086"]
+  token = "ACCESS_TOKEN"
+  organization = "ORG_NAME"
+  bucket = "BUCKET_NAME"
