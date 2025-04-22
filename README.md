@@ -23,7 +23,7 @@ sudo apt update
 sudo apt install influxdb2
 sudo systemctl enable --now influxdb
 ```
-Open your browser and go to: http://<central-server>:8086
+Open your browser and go to: http://SERVER_IP:8086
 
 Complete setup and save:
 Auth Token
@@ -134,40 +134,40 @@ Heatmap Dashboard is linked with the other two dashboard.
 - 🌐 2. Network Stats
 - [[inputs.netstat]]
 - [[inputs.net]]
-  interfaces = ["eth0", "ens*", "enp*"]  # Adjust to your NICs
+- interfaces = ["eth0", "ens*", "enp*"]  # Adjust to your NICs
   
-📶 3. Ping / Internet Connection
-[[inputs.ping]]
-  urls = ["8.8.8.8", "1.1.1.1"]
-  count = 4
-  ping_interval = 1.0
-  timeout = 2.0
+- 📶 3. Ping / Internet Connection
+- [[inputs.ping]]
+- urls = ["8.8.8.8", "1.1.1.1"]
+- count = 4
+- ping_interval = 1.0
+- timeout = 2.0
   
-💻 4. SMART Disk Health
-[[inputs.smart]]
-  devices = ["/dev/sda"]
-Install tools:
-sudo apt install smartmontools
+- 💻 4. SMART Disk Health
+- [[inputs.smart]]
+- devices = ["/dev/sda"]
+- Install tools:
+- sudo apt install smartmontools
 
-🐳 5. Docker Containers
-[[inputs.docker]]
-  endpoint = "unix:///var/run/docker.sock"
-  gather_services = false
-
-📡 6. HTTP Response (Optional)
-[[inputs.http_response]]
-  urls = ["https://www.google.com"]
-  response_timeout = "5s"
-  method = "GET"
+- 🐳 5. Docker Containers
+- [[inputs.docker]]
+- endpoint = "unix:///var/run/docker.sock"
+- gather_services = false
   
-✅ Final Steps
-sudo systemctl restart telegraf
-sudo journalctl -u telegraf -f
+- 📡 6. HTTP Response (Optional)
+-[[inputs.http_response]]
+- urls = ["https://www.google.com"]
+- response_timeout = "5s"
+- method = "GET"
+  
+- ✅ Final Steps
+- sudo systemctl restart telegraf
+- sudo journalctl -u telegraf -f
 
-Wait a few minutes, then open Grafana and start exploring your dashboard.
+- Wait a few minutes, then open Grafana and start exploring your dashboard.
 
-🙌 You're All Set!
-You now have a full-featured monitoring stack running with InfluxDB, Telegraf, and Grafana. Happy monitoring!
+- 🙌 You're All Set!
+- You now have a full-featured monitoring stack running with InfluxDB, Telegraf, and Grafana. Happy monitoring!
 
 ---
 
