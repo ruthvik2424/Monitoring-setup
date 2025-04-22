@@ -36,17 +36,20 @@ Bucket Name
 sudo apt install influxdb-client
 
 influx config create --config-name my-config \
-  --url http://<INFLUXDB_IP>:8086 \
-  --token <your-token> \
-  --org <your-org-name> \
+  --url http://INFLUXDB_IP:8086 \
+  --token TOKEN \
+  --org ORGANIZATION \
   --active
 
 influx config list
-influx query 'from(bucket:"<your-bucket-name>") |> range(start: -1h)'
+influx query 'from(bucket:"BUCKETNAME") |> range(start: -1h)'
 
-influx user create --name grafana_user --password 'yourpassword'
-influx bucket permissions add --bucket <your-bucket-name> --read --user grafana_user
-influx auth create --read-bucket <bucket_id> --user grafana_user
+```
+
+```bash
+influx user create --name grafana_user --password 'PASSWORD'
+influx bucket permissions add --bucket BUCKETNAME --read --user grafana_user
+influx auth create --read-bucket BUCKETID --user grafana_user
 influx user list
 influx bucket permissions list --user grafana_user
 
@@ -95,10 +98,10 @@ sudo nano /etc/telegraf/telegraf.conf
 Add output config:
 ```bash
 [[outputs.influxdb_v2]]
-  urls = ["http://<INFLUXDB_IP>:8086"]
-  token = "<YOUR_INFLUXDB_TOKEN>"
-  organization = "<YOUR_ORG_NAME>"
-  bucket = "<YOUR_BUCKET_NAME>"
+  urls = ["http://INFLUXDB_IP:8086"]
+  token = "YOUR_INFLUXDB_TOKEN"
+  organization = "YOUR_ORG_NAME"
+  bucket = "YOUR_BUCKET_NAME"
 ```
 Restart the service
 
@@ -170,4 +173,3 @@ Heatmap Dashboard is linked with the other two dashboard.
 - You now have a full-featured monitoring stack running with InfluxDB, Telegraf, and Grafana. Happy monitoring!
 
 ---
-
