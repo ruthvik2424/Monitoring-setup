@@ -1,0 +1,86 @@
+- name: Deploy Telegraf with iLO IP auto-detection
+  hosts: all
+  become: true
+  vars:
+    telegraf_user: telegraf
+    telegraf_group: telegraf
+    telegraf_packages:
+      - smartmontools
+      - ipmitool
+      - lm-sensors
+
+  tasks:
+    - name: Ensure keyrings directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download and install InfluxData GPG key
+      shell: |
+        curl -s https://repos.influxdata.com/influxdata-archive_compat.key | gpg --dearmor -o /etc/apt/keyrings/influxdata-archive.gpg
+      args:
+        creates: /etc/apt/keyrings/influxdata-archive.gpg
+
+    - name: Add InfluxData APT repository
+      copy:
+        dest: /etc/apt/sources.list.d/influxdata.list
+        content: |
+          deb [signed-by=/etc/apt/keyrings/influxdata-archive.gpg] https://repos.influxdata.com/ubuntu jammy stable
+
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+
+    - name: Install Telegraf and required tools
+      apt:
+        name: "{{ telegraf_packages + ['telegraf'] }}"
+        state: present
+
+    - name: Add telegraf user to docker group
+      user:
+        name: "{{ telegraf_user }}"
+        groups: docker
+        append: yes
+      ignore_errors: yes
+
+    - name: Give telegraf sudo access to ipmitool and smartctl
+      copy:
+        dest: "/etc/sudoers.d/{{ telegraf_user }}"
+        content: |
+          {{ telegraf_user }} ALL=(ALL) NOPASSWD: /usr/sbin/ipmitool
+          {{ telegraf_user }} ALL=(ALL) NOPASSWD: /usr/sbin/smartctl
+        mode: '0440'
+
+    - name: Get iLO IP using ipmitool
+      shell: |
+        ipmitool lan print | grep -E '^IP Address\s+:' | grep -v 'Source' | awk -F': ' '{print $2; exit}'
+      register: ilo_ip_output
+      changed_when: false
+      failed_when: ilo_ip_output.rc != 0 or ilo_ip_output.stdout == ""
+      ignore_errors: yes
+      check_mode: no
+      when: true
+
+    - name: Set iLO IP fact
+      set_fact:
+        ilo_ip: "{{ ilo_ip_output.stdout | trim }}"
+
+    - name: Debug ILO IP before templating
+      debug:
+        msg: "ILO IP for {{ inventory_hostname }} is {{ ilo_ip }}"
+
+
+    - name: Deploy telegraf config with dynamic iLO IP
+      template:
+        src: telegraf.conf.j2
+        dest: /etc/telegraf/telegraf.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable and start Telegraf
+      systemd:
+        name: telegraf
+        enabled: yes
+        state: restarted
