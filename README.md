@@ -124,16 +124,16 @@ Heatmap Dashboard is linked with the other two dashboard.
 🔌 Enable Useful Telegraf Plugins
 ---
 
----
-🧊 1. Temperature Sensors
-[[inputs.sensors]]
-Install dependencies:
-sudo apt install lm-sensors
-sudo sensors-detect
----
-🌐 2. Network Stats
-[[inputs.netstat]]
-[[inputs.net]]
+
+- 🧊 1. Temperature Sensors
+- [[inputs.sensors]]
+- Install dependencies:
+- sudo apt install lm-sensors
+- sudo sensors-detect
+
+- 🌐 2. Network Stats
+- [[inputs.netstat]]
+- [[inputs.net]]
   interfaces = ["eth0", "ens*", "enp*"]  # Adjust to your NICs
   
 📶 3. Ping / Internet Connection
