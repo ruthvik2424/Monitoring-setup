@@ -106,6 +106,9 @@ Restart the service
 sudo systemctl restart telegraf
 sudo systemctl status telegraf
 ```
+
+---
+
 ### 5. Import a Grafana Dashboard
 I have provided the json files for the three dashboard 
 
@@ -115,13 +118,19 @@ I have provided the json files for the three dashboard
 
 Heatmap Dashboard is linked with the other two dashboard.
 
+---
+
+---
 🔌 Enable Useful Telegraf Plugins
+---
+
+---
 🧊 1. Temperature Sensors
 [[inputs.sensors]]
 Install dependencies:
 sudo apt install lm-sensors
 sudo sensors-detect
-
+---
 🌐 2. Network Stats
 [[inputs.netstat]]
 [[inputs.net]]
