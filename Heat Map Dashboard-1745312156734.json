@@ -1,0 +1,143 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 3,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "feivwyih1r6rke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": false,
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Host Details",
+              "url": "http://SERVER_IP:3000/d/telegrafwithgrafanaftw/telegraf?orgId=1&from=now-24h&to=now&timezone=browser&var-data_source=feivwyih1r6rke&var-bucket=Core%20Infra&var-host=${__field.labels.host}&var-io_device=$__all&var-mount_point=$__all&var-smart_device=$__all&var-net=$__all&var-gpu_uuid=$__all&var-container=$__all&var-smart_attribute_name=$__all&refresh=5s\n"
+            },
+            {
+              "targetBlank": true,
+              "title": "Hardware Details",
+              "url": "http://SERVER_IP:3000/d/aeiyibotrxgcgc/all-server-temperatures?orgId=1&from=now-6h&to=now&timezone=browser&var-host=${__field.labels.host}\n"
+            }
+          ],
+          "mappings": [],
+          "noValue": "NA",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-red"
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "maxPerRow": 12,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 1,
+          "valueSize": 1
+        },
+        "textMode": "none",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "repeat": "host",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "feivwyih1r6rke"
+          },
+          "query": "from(bucket: \"BUCKETNAME\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"device_reachability\")\n  |> filter(fn: (r) => r._field == \"isreachable\")\n  |> filter(fn: (r) => r.host == \"${host}\")\n  |> map(fn: (r) => ({\n      r with _value: float(v: r._value)  // Convert _value to float to ensure type consistency\n  }))\n  |> fill(value: 0.0)  // Fill missing values with 0.0 (for unreachable)\n  |> last()\n",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "type": "stat"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\nschema.tagValues(\n  bucket: \"BUCKETNAME\",\n  tag: \"host\",\n  predicate: (r) => r._measurement == \"device_reachability\",\n  start: -24h\n)\n",
+        "includeAll": true,
+        "label": "host",
+        "name": "host",
+        "options": [],
+        "query": {
+          "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(\n  bucket: \"BUCKETNAME\",\n  tag: \"host\",\n  predicate: (r) => r._measurement == \"device_reachability\",\n  start: -24h\n)\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Heat Map Dashboard",
+  "uid": "aej9ehf6vmm0wd",
+  "version": 34
+}

@@ -1,0 +1,408 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "feivwyih1r6rke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*//^{component=\"([^\"]+)\"/"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 12
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "query": "from(bucket: \"BUCKETNAME\")\n  |> range(start: -5m)\n  |> filter(fn: (r) =>\n    r._measurement == \"hardware_status\" and\n    r.host == \"${host}\" and\n    r._field == \"health\"\n  )\n  |> map(fn: (r) => ({\n    r with\n    _value: if r._value == \"OK\" or r._value == \"LinkUp\" then 1.0 else 0.0,\n    _alias: if r.component == \"Disk\" then \"${r.name} (${r.serial} @ ${r.controller})\"\n            else if r.component == \"NIC\" then \"NIC ${r.name}\"\n            else if exists r.id then \"${r.component} ${r.name} (${r.id})\"\n            else \"${r.component} ${r.name}\"\n  }))\n  |> group(columns: [\"_alias\"])\n  |> keep(columns: [\"_value\", \"_alias\", \"_time\"])\n  |> last()\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Hardware  Component Status",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "feivwyih1r6rke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              },
+              {
+                "color": "dark-red",
+                "value": 100
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 30,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": true,
+        "text": {
+          "titleSize": 15,
+          "valueSize": 12
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "query": "from(bucket: \"BUCKETNAME\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"hardware_temperature\")\n  |> filter(fn: (r) => r.host == \"${host}\")\n  |> filter(fn: (r) => r._field == \"temperature\")\n  |> group(columns: [\"name\"])  // group by sensor name\n  |> keep(columns: [\"_time\", \"_value\", \"name\"])  // include the name in output\n\n\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature of All Sensors",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 4,
+      "panels": [],
+      "title": "CPU Health and State",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "feivwyih1r6rke"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "Critical": {
+                  "color": "orange",
+                  "text": "Critical"
+                },
+                "Degraded": {
+                  "color": "orange",
+                  "text": "Degraded"
+                },
+                "Disabled": {
+                  "color": "red",
+                  "text": "Disabled"
+                },
+                "Enabled": {
+                  "color": "green",
+                  "text": "Enabled"
+                },
+                "Non-Critical": {
+                  "color": "yellow",
+                  "text": "Non-Critical"
+                },
+                "OK": {
+                  "color": "green",
+                  "text": "OK"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "_field HOST_IP"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "feivwyih1r6rke"
+          },
+          "query": "from(bucket: \"BUCKETNAME\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"hardware_status\" and r.host =~ /$host/)\n  |> group(columns: [\"host\"])\n  |> keep(columns: [\"_time\", \"_field\", \"_value\", \"host\", \"component\", \"id\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n:20)",
+          "refId": "A"
+        }
+      ],
+      "title": "Hardware Health Status",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "feivwyih1r6rke"
+      },
+      "description": "Hardware Temperature ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "feivwyih1r6rke"
+          },
+          "query": "from(bucket: \"BUCKETNAME\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"ipmi_sensor\" and r._field == \"value\")\n  |> filter(fn: (r) => contains(value: r.name, set: [\"01-inlet_ambient\", \"02-cpu_1_pkgtmp\", \"03-cpu_2_pkgtmp\", \"04-p1_dimm_1-6\", \"06-p1_dimm_7-12\", \"08-p2_dimm_1-6\", \"10-p2_dimm_7-12\", \"12-vr_p1\", \"13-vr_p2\", \"14-hd_max\"]))\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"name\"], valueColumn: \"_value\")\n  |> yield(name: \"sensor_values\")\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature over Sensors",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "HOST_IP",
+          "value": "HOST_IP"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: \"BUCKETNAME\", tag: \"host\")\n",
+        "description": "Hosts",
+        "name": "host",
+        "options": [],
+        "query": {
+          "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: \"BUCKETNAME\", tag: \"host\")\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "All Server Temperatures",
+  "uid": "aeiyibotrxgcgc",
+  "version": 45
+}
